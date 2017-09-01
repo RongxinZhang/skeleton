@@ -17,9 +17,14 @@ import static java.util.stream.Collectors.toList;
 // @Consumes(MediaType.APPLICATION_JSON)
 // @Produces(MediaType.APPLICATION_JSON)
 public class TagsController {
+    final ReceiptDao receipts;
+
+    public TagsController(ReceiptDao receipts) {
+        this.receipts = receipts;
+    }
 
     @PUT
     public String toggleTag(@PathParam("tag") String tagName) {
-      return tagName;
+      return receipts.insertTag(tagName, 1);
     }
 }

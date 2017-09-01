@@ -21,8 +21,8 @@ public class ReceiptDao {
 
     public int insert(String merchantName, BigDecimal amount) {
         ReceiptsRecord receiptsRecord = dsl
-                .insertInto(RECEIPTS, RECEIPTS.MERCHANT, RECEIPTS.AMOUNT)
-                .values(merchantName, amount)
+                .insertInto(RECEIPTS, RECEIPTS.MERCHANT, RECEIPTS.AMOUNT, RECEIPTS.TAGS)
+                .values(merchantName, amount, "none")
                 .returning(RECEIPTS.ID)
                 .fetchOne();
 
@@ -33,5 +33,17 @@ public class ReceiptDao {
 
     public List<ReceiptsRecord> getAllReceipts() {
         return dsl.selectFrom(RECEIPTS).fetch();
+    }
+
+    public String insertTag(String tagName, int id) {
+        dsl.update(RECEIPTS)
+                .set(RECEIPTS.TAGS, tagName)
+                .where(RECEIPTS.ID.equal(id))
+                .execute();
+
+        ReceiptsRecord receiptsRecord = dsl.selectFrom(RECEIPTS).where(RECEIPTS.ID.equal(id)).fetchOne();
+        checkState(receiptsRecord != null && receiptsRecord.getTags() != null, "Insert failed");
+
+        return receiptsRecord.getTags();
     }
 }

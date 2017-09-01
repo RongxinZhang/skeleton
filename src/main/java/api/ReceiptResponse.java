@@ -26,11 +26,15 @@ public class ReceiptResponse {
     BigDecimal value;
 
     @JsonProperty
+    String tags;
+
+    @JsonProperty
     Time created;
 
     public ReceiptResponse(ReceiptsRecord dbRecord) {
         this.merchantName = dbRecord.getMerchant();
         this.value = dbRecord.getAmount();
+        this.tags = dbRecord.getTags();
         this.created = dbRecord.getUploaded();
         this.id = dbRecord.getId();
     }

@@ -44,7 +44,7 @@ public class SimpleApplication extends Application<Configuration> {
         // you need class and method @Path annotations!
         env.jersey().register(new HelloWorldController());
         env.jersey().register(new NetIdController());
-        env.jersey().register(new TagsController());
+        env.jersey().register(new TagsController(receiptDao));
         env.jersey().register(new ReceiptController(receiptDao));
     }
 }
