@@ -24,7 +24,7 @@ public class TagsController {
     }
 
     @PUT
-    public String toggleTag(@PathParam("tag") String tagName, @PathParam("id") String id) {
-      return receipts.insertTag(tagName, Integer.parseInt(id));
+    public void toggleTag(@PathParam("tag") String tagName, @PathParam("id") String id) {
+      receipts.insertTag(tagName, Integer.parseInt(id));
     }
 }

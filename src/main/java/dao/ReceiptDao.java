@@ -22,7 +22,7 @@ public class ReceiptDao {
     public int insert(String merchantName, BigDecimal amount) {
         ReceiptsRecord receiptsRecord = dsl
                 .insertInto(RECEIPTS, RECEIPTS.MERCHANT, RECEIPTS.AMOUNT, RECEIPTS.TAGS)
-                .values(merchantName, amount, "none")
+                .values(merchantName, amount, null)
                 .returning(RECEIPTS.ID)
                 .fetchOne();
 
