@@ -13,8 +13,8 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-@Path("/tags/{tag}")
-// @Consumes(MediaType.APPLICATION_JSON)
+@Path("/tags/{id}/{tag}")
+@Consumes(MediaType.APPLICATION_JSON)
 // @Produces(MediaType.APPLICATION_JSON)
 public class TagsController {
     final ReceiptDao receipts;
@@ -24,7 +24,7 @@ public class TagsController {
     }
 
     @PUT
-    public String toggleTag(@PathParam("tag") String tagName) {
-      return receipts.insertTag(tagName, 1);
+    public String toggleTag(@PathParam("tag") String tagName, @PathParam("id") String id) {
+      return receipts.insertTag(tagName, Integer.parseInt(id));
     }
 }
