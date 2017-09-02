@@ -66,4 +66,8 @@ public class ReceiptDao {
 
         return receiptsRecord.getTags();
     }
+
+    public List<ReceiptsRecord> getTags(String tagName) {
+        return dsl.selectFrom(RECEIPTS).where(RECEIPTS.TAGS.contains(tagName)).fetch();
+    }
 }

@@ -13,9 +13,9 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-@Path("/tags/{id}/{tag}")
+@Path("/tags")
 @Consumes(MediaType.APPLICATION_JSON)
-// @Produces(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class TagsController {
     final ReceiptDao receipts;
 
@@ -23,8 +23,16 @@ public class TagsController {
         this.receipts = receipts;
     }
 
+    @GET
+    @Path("/{tag}")
+    public List<ReceiptResponse> getAllTags(@PathParam("tag") String tagName) {
+      List<ReceiptsRecord> receiptRecords = receipts.getTags(tagName);
+      return receiptRecords.stream().map(ReceiptResponse::new).collect(toList());
+    }
+
     @PUT
-    public String toggleTag(@PathParam("tag") String tagName, @PathParam("id") String id) {
-      return receipts.insertTag(tagName, Integer.parseInt(id));
+    @Path("/{id}/{tag}")
+    public void toggleTag(@PathParam("tag") String tagName, @PathParam("id") String id) {
+      receipts.insertTag(tagName, Integer.parseInt(id));
     }
 }
