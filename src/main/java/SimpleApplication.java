@@ -2,13 +2,13 @@ import controllers.HelloWorldController;
 import controllers.NetIdController;
 import controllers.ReceiptController;
 import controllers.TagsController;
+import controllers.StaticHtmlController;
 import dao.ReceiptDao;
 import io.dropwizard.Application;
 import io.dropwizard.Configuration;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.h2.jdbcx.JdbcConnectionPool;
-
 import org.jooq.SQLDialect;
 import org.jooq.impl.DefaultConfiguration;
 
@@ -45,6 +45,7 @@ public class SimpleApplication extends Application<Configuration> {
         env.jersey().register(new HelloWorldController());
         env.jersey().register(new NetIdController());
         env.jersey().register(new TagsController(receiptDao));
+        env.jersey().register(new StaticHtmlController());
         env.jersey().register(new ReceiptController(receiptDao));
     }
 }
