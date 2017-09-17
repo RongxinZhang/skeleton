@@ -5,28 +5,148 @@
     <link rel="stylesheet" href="style.css" />
     <script data-require="jquery@*" data-semver="3.1.1" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <style>
-        #container {border: 1px solid brown;}
-        H1 {float: left;}
+        html, body, div{
+          -webkit-font-smoothing: antialiased;
+          line-height: 1.5em;
+          font: 16px Helvetica, arial, sans-serif;
+          margin: 0px;
+          padding: 0px;
+          box-sizing: border-box;
+        }
 
+        #container {
+          border: 1px solid brown;
+          max-width: 600px;
+          margin: 100px auto
+        }
+        H1 {
+          float: left;
+        }
+
+        /*Buttons*/
         .button{
             background-color:#55A;
-            border: 1px solid #229;
+            border-radius: 3px;
             width: 100px;
             float: right;
-            font-size: 2em;
+            padding: 15px;
+            text-transform: uppercase;
+            font-size: 13px;
+            font-weight: 600;
             color: white;
             text-align: center;
+        }
+
+        #add-receipt{
+          margin: 15px 0px;
+        }
+
+        #add-receipt-modal .button{
+          margin-top: 15px;
+        }
+
+        #cancel-receipt{
+          margin-right: 15px;
+        }
+
+        /*MODAL*/
+        #add-receipt-modal{
+            float: left;
+            padding: 30px;
+            width: 100%;
+            background: orange;
+            margin: 0 0 15px 0;
+        }
+
+        input {
+          border-radius: 3px;
+        }
+
+        #add-receipt-modal input{
+            width: 100%;
+            box-sizing: border-box;
+            padding: 15px;
+            font-size: 15px;
+            border: 0px;
+        }
+
+        #add-receipt-modal #amount{
+          margin-top: 15px;
         }
 
         #receiptList {
             border: 1px solid green;
             clear: both;
+            min-height: 500px;
         }
 
         .receipt {
-            background-color: #eee;
+            /*background-color: #333;*/
             margin-bottom: 5px;
+            display: table;
+            width: 100%;
+            /*height: 100px;*/
         }
+
+        .cells {
+          display: table-cell;
+          vertical-align: top;
+          margin-right: -5px;
+          border: 1px solid black;
+          background: #f1f1f1;
+          width: 25%;
+          height: 100%;
+          padding: 15px;
+          text-align: left;
+        }
+
+        /*Column headers*/
+        #col-header{
+          display: table;
+          width: 100%
+        }
+
+        #col-header .cells{
+          background: grey;
+        }
+
+        .row{
+          display: table-row;
+        }
+
+        /*Tags*/
+        .tag-items{
+          background: violet;
+          color white;
+          text-align: center;
+          padding: 10px;
+          border-radius: 100px;
+          text-transform: uppercase;
+          font-size: 13px;
+          font-weight: 600;
+          color: white;
+        }
+
+        .add-tag{
+          margin-top: 10px;
+          background: grey;
+        }
+
+        .add-tag-row{
+          caption-side: bottom;
+          display: table-caption;
+          padding: 15px;
+          background: grey;
+        }
+
+        .tag_input{
+          width: 100%;
+          padding: 15px;
+          font-size: 15px;
+          border: 0px;
+          box-sizing: border-box;
+        }
+
 
     </style>
     <script>
@@ -50,8 +170,38 @@
 <body>
 <DIV id="container">
     <h1>My receipts</h1>
-    <div class="button">+</div>
+    <div class="button" id="add-receipt">+</div>
+
+    <div id="add-receipt-modal">
+      <input type="text" name="merchant" placeholder="merchant" id="merchant">
+      <input type="text" name="amount" placeholder="amount" id="amount">
+      <div class="button" id="save-receipt">save</div>
+      <div class="button" id="cancel-receipt">cancel</div>
+    </div>
+
     <div id="receiptList">
+      <!-- Column headers -->
+      <div id="col-header">
+        <div class="cells time">Time</div>
+        <div class="cells merhant">Merchant</div>
+        <div class="cells dollar">$</div>
+        <div class="cells tags">tags</div>
+      </div>
+
+      <div class="receipt">
+        <div class="row">
+          <div class="cells time">1s ago</div>
+          <div class="cells merchant">Jerry's Ice Cream</div>
+          <div class="cells amount">4000</div>
+          <div class="cells tags">
+            <div class="tagValue tag-items"> bob </div>
+            <div class="add-tag tag-items"> add + </div>
+          </div>
+        </div>
+        <div class="add-tag-row">
+          <input type="text" name="tag_input" placeholder="tag name" class="tag_input">
+        </div>
+      </div>
     </div>
 </DIV>
 </body>
