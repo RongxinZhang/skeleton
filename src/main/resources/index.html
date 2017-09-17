@@ -139,7 +139,7 @@
           display: table-caption;
           padding: 15px;
           background: grey;
-          display: none;
+          /*display: none;*/
         }
 
         .tag_input{
@@ -177,7 +177,7 @@
     <div id="receiptList">
 
       <!-- TEMPLATE START -->
-      <!-- <div class="receipt">
+      <div class="receipt">
         <div class="row">
           <div class="cells time">1s ago</div>
           <div class="cells merchant">Jerry's Ice Cream</div>
@@ -188,10 +188,7 @@
           </div>
         </div>
 
-        <div class="add-tag-row">
-          <input type="text" name="tag_input" placeholder="tag name" class="tag_input">
-        </div>
-      </div> -->
+      </div>
       <!-- TEMPLATE END -->
     </div>
 </DIV>
@@ -278,10 +275,23 @@
         })
 
         /*
-        * Create Receipts
+        * Tags
         */
 
+        $(".add-tag").click(function(){
+          createTagInput($(this).parent().parent().parent())
+          $('.tag_input').keypress(function (e) {
+            if (e.which == 13) {
+              // Remove element after clicking
+              $(this).parent().remove()
+              return false;
+            }
+          });
+        })
 
+        /*
+        * Templates
+        */
 
         function createReceipt(time, merchantName, amount, tags){
           template = '<div class="receipt"> <div class="row"> <div class="cells time">' +
@@ -301,6 +311,13 @@
             }
           }
           return template
+        }
+
+        function createTagInput(el){
+          if (!$(".tag_input").is(":visible")){
+            template = '<div class="add-tag-row"> <input type="text" name="tag_input" placeholder="tag name" class="tag_input"> </div>'
+            $(template).appendTo(el)
+          }
         }
     })
 </script>
