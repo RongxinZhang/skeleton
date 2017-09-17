@@ -184,7 +184,7 @@
           <div class="cells amount">4000</div>
           <div class="cells tags">
             <div class="tagValue tag-items"> bob </div>
-            <div class="add-tag tag-items"> add + </div>
+            <div class="add-tag tag-items" data-id="bob"> add + </div>
           </div>
         </div>
 
@@ -228,6 +228,13 @@
           });
         };
 
+        function putTag(info, cb){
+          $.ajax(
+            { method: "PUT", url: "/tags/" + info.tag, headers: { 'Content-Type': 'application/json' },
+            data: ""+info.id
+          }).done(function( msg ) { cb(msg) });
+        };
+
         /*
         * On Start-Up
         */
@@ -236,8 +243,8 @@
             item = r[i]
             tags = []
             // console.log(r[i].tags);
-            if (item.tags && item.tags.length > 0) tags = item.tags.length.split(" ")
-            createReceipt(item.created, item.merchantName, item.value, tags)
+            if (item.tags && item.tags.length > 0) tags = item.tags.split(" ")
+            createReceipt(item.id, item.created, item.merchantName, item.value, tags)
           }
           bindEventToAddTag()
         })
@@ -264,8 +271,8 @@
               getAllReceipts((r)=>{
                 last = r[r.length - 1]
                 tags = []
-                if (last.tags && last.tags.length > 0) tags = last.tags.length.split(" ")
-                createReceipt(last.created, last.merchantName, last.value, tags)
+                if (last.tags && last.tags.length > 0) tags = last.tags.split(" ")
+                createReceipt(last.id, last.created, last.merchantName, last.value, tags)
                 bindEventToAddTag()
               })
             } else {
@@ -275,7 +282,7 @@
           })
           // PUT and get respomnse
         })
-
+// bindEventToAddTag()
         /*
         * Tags
         */
@@ -283,10 +290,17 @@
           $(".add-tag").unbind("click");
           $(".add-tag").click(function(){
             createTagInput($(this).parent().parent().parent())
+            merchID = $(this).attr("data-id");
+            // console.log($(this));
             $('.tag_input').keypress(function (e) {
               if (e.which == 13) {
+                console.log(merchID);
                 // Remove element after clicking
+                putTag({id: merchID, tag: $(this).val()}, (res)=>{
+                  console.log(res);
+                })
                 $(this).parent().remove()
+                // function createTags(tags)
                 return false;
               }
             });
@@ -297,12 +311,13 @@
         * Templates
         */
 
-        function createReceipt(time, merchantName, amount, tags){
+        function createReceipt(id, time, merchantName, amount, tags){
           template = '<div class="receipt"> <div class="row"> <div class="cells time">' +
           time + '</div> <div class="cells merchant">' +
           merchantName + '</div> <div class="cells amount">' +
           amount + '</div> <div class="cells tags">' +
-          createTags(tags) + '<div class="add-tag tag-items"> add \+ </div> </div> </div></div>'
+          createTags(tags) + '<div class="add-tag tag-items" data-id="'+
+          id + '"> add \+ </div> </div> </div></div>'
           // '<div class="add-tag-row"> <input type="text" name="tag_input" placeholder="tag name" class="tag_input"> </div> '
 
           $(template).appendTo($('#receiptList'))
