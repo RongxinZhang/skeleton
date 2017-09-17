@@ -232,6 +232,19 @@
         };
 
         /*
+        * On Start-Up
+        */
+        getAllReceipts((r)=>{
+          for (var i = 0; i < r.length; i++) {
+            item = r[i]
+            tags = []
+            // console.log(r[i].tags);
+            if (item.tags && item.tags.length > 0) tags = item.tags.length.split(" ")
+            createReceipt(item.created, item.merchantName, item.value, tags)
+          }
+        })
+
+        /*
         * Receipt
         */
 
@@ -251,14 +264,10 @@
           putReceipt({merchant: merchant, amount: amount}, (res)=>{
             if (res){
               getAllReceipts((r)=>{
-                // for (var i = 0; i < r.length; i++) {
-
-                last = r.length - 1
+                last = r[r.length - 1]
                 tags = []
-                // console.log(r[i].tags);
-                if (r[last].tags && r[last].tags.length > last) tags = r[last].tags.length.split(" ")
-                createReceipt(r[last].created, r[last].merchantName, r[last].value, tags)
-                // }
+                if (last.tags && last.tags.length > 0) tags = last.tags.length.split(" ")
+                createReceipt(last.created, last.merchantName, last.value, tags)
               })
             } else {
               print(res)
