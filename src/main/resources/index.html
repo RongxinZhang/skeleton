@@ -56,6 +56,7 @@
             width: 100%;
             background: orange;
             margin: 0 0 15px 0;
+            display: none;
         }
 
         input {
@@ -125,10 +126,11 @@
           font-size: 13px;
           font-weight: 600;
           color: white;
+          margin-bottom: 10px;
         }
 
         .add-tag{
-          margin-top: 10px;
+          margin: 0px;
           background: grey;
         }
 
@@ -137,6 +139,7 @@
           display: table-caption;
           padding: 15px;
           background: grey;
+          display: none;
         }
 
         .tag_input{
@@ -149,22 +152,6 @@
 
 
     </style>
-    <script>
-        // This is the idiomatic way to ensure that JQuery does not
-        // execute until the page has loaded
-        $(function(){
-            const api = ""; // <- do not need a root api URL if this page is served directly by the API
-
-            $.getJSON(api+"/receipts", function(receipts){
-                for(var i=0; i < receipts.length; i++) {
-                    var receipt = receipts[i];
-                    $(`<div class="receipt">${receipt.merchantName}<div><span class="receiptTag">t1</span></div></div>`)
-                        .appendTo($("#receiptList"));
-                }
-
-            })
-        })
-    </script>
 </head>
 
 <body>
@@ -175,20 +162,22 @@
     <div id="add-receipt-modal">
       <input type="text" name="merchant" placeholder="merchant" id="merchant">
       <input type="text" name="amount" placeholder="amount" id="amount">
+      <div id="response"></div>
       <div class="button" id="save-receipt">save</div>
       <div class="button" id="cancel-receipt">cancel</div>
     </div>
 
+    <!-- Column headers -->
+    <div id="col-header">
+      <div class="cells time">Time</div>
+      <div class="cells merhant">Merchant</div>
+      <div class="cells dollar">$</div>
+      <div class="cells tags">tags</div>
+    </div>
     <div id="receiptList">
-      <!-- Column headers -->
-      <div id="col-header">
-        <div class="cells time">Time</div>
-        <div class="cells merhant">Merchant</div>
-        <div class="cells dollar">$</div>
-        <div class="cells tags">tags</div>
-      </div>
 
-      <div class="receipt">
+      <!-- TEMPLATE START -->
+      <!-- <div class="receipt">
         <div class="row">
           <div class="cells time">1s ago</div>
           <div class="cells merchant">Jerry's Ice Cream</div>
@@ -198,12 +187,113 @@
             <div class="add-tag tag-items"> add + </div>
           </div>
         </div>
+
         <div class="add-tag-row">
           <input type="text" name="tag_input" placeholder="tag name" class="tag_input">
         </div>
-      </div>
+      </div> -->
+      <!-- TEMPLATE END -->
     </div>
 </DIV>
 </body>
+
+<script>
+    // This is the idiomatic way to ensure that JQuery does not
+    // execute until the page has loaded
+    // r = {
+    //     "id": 1,
+    //     "merchantName": "money",
+    //     "value": 10,
+    //     "tags": "man",
+    //     "created": "21:26:04"
+    // }
+
+    $(function(){
+
+        /*
+        * Ajax requests
+        */
+
+        // const api = "localhost:8080"; // <- do not need a root api URL if this page is served directly by the API
+
+        function getAllReceipts(cb){
+          $.getJSON("/receipts", function(receipts){
+            cb(receipts)
+          })
+        }
+
+        function putReceipt(info, cb){
+          $.ajax({ method: "POST", url: "/receipts", 'dataType': 'json',  headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+            data: JSON.stringify({ merchant: info.merchant, amount: info.amount })
+          }).done(function( msg ) {
+            console.log(msg);
+            cb(msg)
+          });
+        };
+
+        /*
+        * Receipt
+        */
+
+        // Show receipt
+        $("#add-receipt").click(() =>{
+          $("#add-receipt-modal").toggle()
+        })
+
+        $("#cancel-receipt").click(() =>{
+          $("#add-receipt-modal").toggle()
+        })
+
+        $("#save-receipt").click(() =>{
+          merchant = $("#merchant").val()
+          amount = $("#amount").val()
+          // console.log(name, amount);
+          putReceipt({merchant: merchant, amount: amount}, (res)=>{
+            if (res){
+              getAllReceipts((r)=>{
+                // for (var i = 0; i < r.length; i++) {
+
+                last = r.length - 1
+                tags = []
+                // console.log(r[i].tags);
+                if (r[last].tags && r[last].tags.length > last) tags = r[last].tags.length.split(" ")
+                createReceipt(r[last].created, r[last].merchantName, r[last].value, tags)
+                // }
+              })
+            } else {
+              print(res)
+              $("#response").text(res)
+            }
+          })
+          // PUT and get respomnse
+        })
+
+        /*
+        * Create Receipts
+        */
+
+
+
+        function createReceipt(time, merchantName, amount, tags){
+          template = '<div class="receipt"> <div class="row"> <div class="cells time">' +
+          time + '</div> <div class="cells merchant">' +
+          merchantName + '</div> <div class="cells amount">' +
+          amount + '</div> <div class="cells tags">' +
+          createTags(tags) + '<div class="add-tag tag-items"> add \+ </div> </div> </div> <div class="add-tag-row"> <input type="text" name="tag_input" placeholder="tag name" class="tag_input"> </div> </div>'
+
+          $(template).appendTo($('#receiptList'))
+        }
+
+        function createTags(tags){
+          template = ""
+          if (tags.length > 0){
+            for(i = 0; i < tags.length; i++){
+              template += '<div class="tagValue tag-items">' + tags[i] + '</div>'
+            }
+          }
+          return template
+        }
+    })
+</script>
 
 </html>
