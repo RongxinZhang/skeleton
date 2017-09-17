@@ -177,7 +177,7 @@
     <div id="receiptList">
 
       <!-- TEMPLATE START -->
-      <div class="receipt">
+      <!-- <div class="receipt">
         <div class="row">
           <div class="cells time">1s ago</div>
           <div class="cells merchant">Jerry's Ice Cream</div>
@@ -188,7 +188,7 @@
           </div>
         </div>
 
-      </div>
+      </div> -->
       <!-- TEMPLATE END -->
     </div>
 </DIV>
@@ -239,6 +239,7 @@
             if (item.tags && item.tags.length > 0) tags = item.tags.length.split(" ")
             createReceipt(item.created, item.merchantName, item.value, tags)
           }
+          bindEventToAddTag()
         })
 
         /*
@@ -265,6 +266,7 @@
                 tags = []
                 if (last.tags && last.tags.length > 0) tags = last.tags.length.split(" ")
                 createReceipt(last.created, last.merchantName, last.value, tags)
+                bindEventToAddTag()
               })
             } else {
               print(res)
@@ -277,17 +279,19 @@
         /*
         * Tags
         */
-
-        $(".add-tag").click(function(){
-          createTagInput($(this).parent().parent().parent())
-          $('.tag_input').keypress(function (e) {
-            if (e.which == 13) {
-              // Remove element after clicking
-              $(this).parent().remove()
-              return false;
-            }
-          });
-        })
+        function bindEventToAddTag(){
+          $(".add-tag").unbind("click");
+          $(".add-tag").click(function(){
+            createTagInput($(this).parent().parent().parent())
+            $('.tag_input').keypress(function (e) {
+              if (e.which == 13) {
+                // Remove element after clicking
+                $(this).parent().remove()
+                return false;
+              }
+            });
+          })
+        }
 
         /*
         * Templates
@@ -298,7 +302,8 @@
           time + '</div> <div class="cells merchant">' +
           merchantName + '</div> <div class="cells amount">' +
           amount + '</div> <div class="cells tags">' +
-          createTags(tags) + '<div class="add-tag tag-items"> add \+ </div> </div> </div> <div class="add-tag-row"> <input type="text" name="tag_input" placeholder="tag name" class="tag_input"> </div> </div>'
+          createTags(tags) + '<div class="add-tag tag-items"> add \+ </div> </div> </div></div>'
+          // '<div class="add-tag-row"> <input type="text" name="tag_input" placeholder="tag name" class="tag_input"> </div> '
 
           $(template).appendTo($('#receiptList'))
         }
