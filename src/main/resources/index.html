@@ -183,7 +183,7 @@
           <div class="cells merchant">Jerry's Ice Cream</div>
           <div class="cells amount">4000</div>
           <div class="cells tags">
-            <div class="tagValue tag-items"> bob </div>
+            <div class="tagValue tag-items" data-id="1"> bob </div>
             <div class="add-tag tag-items" data-id="bob"> add + </div>
           </div>
         </div>
@@ -238,16 +238,22 @@
         /*
         * On Start-Up
         */
-        getAllReceipts((r)=>{
-          for (var i = 0; i < r.length; i++) {
-            item = r[i]
-            tags = []
-            // console.log(r[i].tags);
-            if (item.tags && item.tags.length > 0) tags = item.tags.split(" ")
-            createReceipt(item.id, item.created, item.merchantName, item.value, tags)
-          }
-          bindEventToAddTag()
-        })
+        function startUp(){
+          getAllReceipts((r)=>{
+            $("#receiptList").html('')
+            for (var i = 0; i < r.length; i++) {
+              item = r[i]
+              tags = []
+              // console.log(r[i].tags);
+              if (item.tags && item.tags.length > 0) tags = item.tags.split(" ")
+              createReceipt(item.id, item.created, item.merchantName, item.value, tags)
+            }
+            bindEventToAddTag()
+            bindEventToTags()
+          })
+        }
+
+        startUp()
 
         /*
         * Receipt
@@ -266,6 +272,7 @@
           merchant = $("#merchant").val()
           amount = $("#amount").val()
           // console.log(name, amount);
+
           putReceipt({merchant: merchant, amount: amount}, (res)=>{
             if (res){
               getAllReceipts((r)=>{
@@ -274,6 +281,7 @@
                 if (last.tags && last.tags.length > 0) tags = last.tags.split(" ")
                 createReceipt(last.id, last.created, last.merchantName, last.value, tags)
                 bindEventToAddTag()
+                bindEventToTags()
               })
             } else {
               print(res)
@@ -291,19 +299,27 @@
           $(".add-tag").click(function(){
             createTagInput($(this).parent().parent().parent())
             merchID = $(this).attr("data-id");
-            // console.log($(this));
             $('.tag_input').keypress(function (e) {
               if (e.which == 13) {
-                console.log(merchID);
                 // Remove element after clicking
+                $(this).val()
                 putTag({id: merchID, tag: $(this).val()}, (res)=>{
-                  console.log(res);
+                  startUp()
                 })
                 $(this).parent().remove()
-                // function createTags(tags)
                 return false;
               }
             });
+          })
+        }
+        // bindEventToTags()
+
+        function bindEventToTags(){
+          $(".tagValue").unbind("click");
+          $(".tagValue").click(function(){
+            putTag({id: $(this).attr('data-id'), tag: $(this).text()}, (res)=>{
+              startUp()
+            })
           })
         }
 
@@ -316,18 +332,18 @@
           time + '</div> <div class="cells merchant">' +
           merchantName + '</div> <div class="cells amount">' +
           amount + '</div> <div class="cells tags">' +
-          createTags(tags) + '<div class="add-tag tag-items" data-id="'+
+          createTags(tags, id) + '<div class="add-tag tag-items" data-id="'+
           id + '"> add \+ </div> </div> </div></div>'
           // '<div class="add-tag-row"> <input type="text" name="tag_input" placeholder="tag name" class="tag_input"> </div> '
 
           $(template).appendTo($('#receiptList'))
         }
 
-        function createTags(tags){
+        function createTags(tags, id){
           template = ""
           if (tags.length > 0){
             for(i = 0; i < tags.length; i++){
-              template += '<div class="tagValue tag-items">' + tags[i] + '</div>'
+              if (tags[i] != "") template += '<div class="tagValue tag-items" data-id="'+id+'">' + tags[i] + '</div>'
             }
           }
           return template
