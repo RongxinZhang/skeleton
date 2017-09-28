@@ -197,6 +197,13 @@
       </div> -->
       <!-- TEMPLATE END -->
     </div>
+
+    <button id="start">Start Video</button>
+    <div id="vidwrap">
+      <video autoplay></video>
+    </div>
+    <button id="snapshot" disabled="true">Take a Snapshot!</button>
+
 </DIV>
 </body>
 
@@ -373,6 +380,63 @@
           }
         }
     })
+
+
+  var imageCapture;
+
+  function attachMediaStream(mediaStream) {
+    $('video')[0].srcObject = mediaStream;
+
+    // Saving the track allows us to capture a photo
+    const track = mediaStream.getVideoTracks()[0];
+    imageCapture = new ImageCapture(track);
+  }
+
+  function startVideo() {
+    navigator.mediaDevices.getUserMedia({video: {facingMode: { exact: "environment" }}})
+    .then(attachMediaStream)
+    .catch(error => {
+      navigator.mediaDevices.getUserMedia({video: true})
+      .then(attachMediaStream)
+      .catch(error => {
+        console.log('you are fooked');
+      })
+    });
+  }
+
+  function takeSnapshot() {
+    // create a CANVAS element that is same size as the image
+    imageCapture.takePhoto()
+    .then(blob => createImageBitmap(blob))
+    .then(img => {
+      var canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      canvas.getContext('2d').drawImage(img, 0, 0);
+      img = canvas.toDataURL('image/png')
+      // console.log(img);
+      img = img.replace("data:image/png;base64,","")
+      $.ajax({
+        type: "POST",
+        url: "/images",
+        data: img, // <-- Put comma here
+        contentType: 'text/plain',
+        success: function(res){
+          console.log(res);
+        }
+      })
+      $('BODY').append(canvas);
+    });
+
+  }
+
+  $(function(){
+    console.log("TESTING");
+    $('#start').on('click', startVideo);
+    $('video').on('play', () => $('#snapshot').prop('disabled', false));
+    $('#snapshot').on('click', takeSnapshot);
+  })
 </script>
 
 </html>
