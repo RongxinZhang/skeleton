@@ -44,19 +44,37 @@
         }
 
         #add-receipt{
-          margin: 15px 0px;
+          margin: 15px 15px 15px 0px;
         }
 
-        #add-receipt-modal .button{
+
+        .modal .button{
           margin-top: 15px;
         }
-
         #cancel-receipt{
           margin-right: 15px;
         }
 
+        /*VIDEO*/
+
+        #start-camera{
+          margin: 15px 0px;
+        }
+        #take-pic-cancel{
+          margin-right: 15px;
+        }
+
+        video{
+          width:100%;
+        }
+
+        canvas{
+          width: 100%;
+        }
+
         /*MODAL*/
-        #add-receipt-modal{
+
+        .modal{
             float: left;
             padding: 30px;
             width: 100%;
@@ -64,6 +82,10 @@
             margin: 0 0 15px 0;
             display: none;
         }
+
+        /*#take-picture-modal{
+          display: block;
+        }*/
 
         input {
           border-radius: 3px;
@@ -163,9 +185,21 @@
 <body>
 <DIV id="container">
     <h1>My receipts</h1>
+    <div class="button" id="start-camera">CAM</div>
     <div class="button" id="add-receipt">+</div>
 
-    <div id="add-receipt-modal">
+    <!-- <button id="start">Start Video</button> -->
+
+    <div id="take-picture-modal" class="modal">
+
+      <div id="vidwrap"> <video autoplay></video> </div>
+      <!-- <button id="take-pic" class>Take a Snapshot!</button> -->
+
+      <div class="button" id="take-pic">snap</div>
+      <div class="button" id="take-pic-cancel">cancel</div>
+    </div>
+
+    <div id="add-receipt-modal" class="modal">
       <input type="text" name="merchant" placeholder="merchant" id="merchant">
       <input type="text" name="amount" placeholder="amount" id="amount">
       <div id="response"></div>
@@ -198,11 +232,6 @@
       <!-- TEMPLATE END -->
     </div>
 
-    <button id="start">Start Video</button>
-    <div id="vidwrap">
-      <video autoplay></video>
-    </div>
-    <button id="snapshot" disabled="true">Take a Snapshot!</button>
 
 </DIV>
 </body>
@@ -292,6 +321,11 @@
                 tags = []
                 if (last.tags && last.tags.length > 0) tags = last.tags.split(" ")
                 createReceipt(last.id, last.created, last.merchantName, last.value, tags)
+                setTimeout(function () {
+                  $("#merchant").val("")
+                  $("#amount").val("")
+                  $("#add-receipt-modal").toggle()
+                }, 300);
                 bindEventToAddTag()
                 bindEventToTags()
               })
@@ -381,6 +415,9 @@
         }
     })
 
+  /*
+  * VIDEO CAPTURE
+  */
 
   var imageCapture;
 
@@ -392,16 +429,26 @@
     imageCapture = new ImageCapture(track);
   }
 
+  $("#take-pic-cancel").click(() =>{
+    $('#take-picture-modal').toggle();
+  })
+
+  on = false;
   function startVideo() {
-    navigator.mediaDevices.getUserMedia({video: {facingMode: { exact: "environment" }}})
-    .then(attachMediaStream)
-    .catch(error => {
-      navigator.mediaDevices.getUserMedia({video: true})
+    console.log("START VIDE");
+    $('#take-picture-modal').toggle();
+    if (!on){
+      navigator.mediaDevices.getUserMedia({video: {facingMode: { exact: "environment" }}})
       .then(attachMediaStream)
       .catch(error => {
-        console.log('you are fooked');
-      })
-    });
+        navigator.mediaDevices.getUserMedia({video: true})
+        .then(attachMediaStream)
+        .catch(error => {
+          console.log('you are fooked');
+        })
+      });
+    }
+    on = true
   }
 
   function takeSnapshot() {
@@ -409,33 +456,48 @@
     imageCapture.takePhoto()
     .then(blob => createImageBitmap(blob))
     .then(img => {
-      var canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
+      vel = $("video")
+      vel.width()
+      vel.height()
 
-      canvas.getContext('2d').drawImage(img, 0, 0);
+      var canvas = document.createElement('canvas');
+      canvas.width = vel.width();
+      canvas.height = vel.height();
+
+      canvas.getContext('2d').drawImage(img, 0, 0, vel.width(), vel.height());
       img = canvas.toDataURL('image/png')
-      // console.log(img);
       img = img.replace("data:image/png;base64,","")
+
       $.ajax({
         type: "POST",
         url: "/images",
         data: img, // <-- Put comma here
         contentType: 'text/plain',
         success: function(res){
-          console.log(res);
+          $("#add-receipt-modal").toggle()
+          $("#take-picture-modal").toggle()
+
+          $("#merchant").val(res.merchantName)
+          $("#amount").val(res.amount)
+          // HIDE STUFF
+          $(canvas).toggle()
+          vel.toggle()
         }
       })
-      $('BODY').append(canvas);
+
+      // HIDE STUFF
+      vel.toggle()
+      $('#vidwrap').append(canvas);
     });
 
   }
 
   $(function(){
-    console.log("TESTING");
-    $('#start').on('click', startVideo);
+    $('#start-camera').on('click', startVideo);
     $('video').on('play', () => $('#snapshot').prop('disabled', false));
-    $('#snapshot').on('click', takeSnapshot);
+    $('#take-pic').on('click', takeSnapshot);
+    // NOTE: Cancel picture
+    // $('#take-pic-cancel').on('click', takeSnapshot);
   })
 </script>
 
