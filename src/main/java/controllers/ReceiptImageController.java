@@ -59,18 +59,17 @@ public class ReceiptImageController {
             Pattern p = Pattern.compile("\\d+\\.\\d+");
 
             String first = res.getTextAnnotationsList().iterator().next().getDescription();
+            out.printf("bob: %s\n", merchantName, amount);
             String[] cuts = first.split("\n");
-
 
             for(int i = 0; i < cuts.length; i++) {
               Matcher m =p.matcher(cuts[i]);
               if (m.find()){
                 amount = m.group();
               }
-              if (i == 1){
+              if (i == 0){
                 merchantName = cuts[i];
               }
-
             }
             out.printf("bob: %s\n", merchantName, amount);
 

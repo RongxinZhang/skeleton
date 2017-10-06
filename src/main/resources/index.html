@@ -453,7 +453,7 @@
 
   function takeSnapshot() {
     // create a CANVAS element that is same size as the image
-    imageCapture.takePhoto()
+    imageCapture.grabFrame()
     .then(blob => createImageBitmap(blob))
     .then(img => {
       vel = $("video")
